@@ -40,7 +40,7 @@ func (gs *GracefulServer) GracefulServe(listener net.Listener) (err error) {
 	gs.logger = gs.logger.With(
 		zap.String("addr", listener.Addr().String()),
 		zap.String("network", listener.Addr().Network()),
-		)
+	)
 
 	// Create a logger with the log level Error that the HTTP server can use
 	// to log its errors.
@@ -88,8 +88,8 @@ func (gs *GracefulServer) GracefulServe(listener net.Listener) (err error) {
 
 	// Add some informative logging.
 	deadline, hasDeadline := timeoutCtx.Deadline()
-		if !hasDeadline {
-			deadline = time.Time{}
+	if !hasDeadline {
+		deadline = time.Time{}
 	}
 	gs.logger.Info("shutting down",
 		zap.NamedError("cause", httpCtx.Err()),
