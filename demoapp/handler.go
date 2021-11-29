@@ -2,10 +2,11 @@ package demoapp
 
 import (
 	"embed"
-	"go.uber.org/zap"
 	"html/template"
 	"io/fs"
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 //go:embed templates

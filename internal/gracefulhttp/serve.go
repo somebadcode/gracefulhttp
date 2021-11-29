@@ -2,11 +2,12 @@ package gracefulhttp
 
 import (
 	"context"
-	"go.uber.org/zap"
 	"net"
 	"net/http"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // GracefulServer is a composite type of http.Server and the GracefulServer function. Must be created with New.
@@ -65,7 +66,7 @@ func (gs *GracefulServer) GracefulServe(listener net.Listener) (err error) {
 
 		gs.logger.Info("starting to serve")
 
-		err := gs.Serve(listener)
+		err = gs.Serve(listener)
 		if err != http.ErrServerClosed && err != nil {
 			gs.logger.Error("http server error",
 				zap.Error(err),
@@ -77,7 +78,7 @@ func (gs *GracefulServer) GracefulServe(listener net.Listener) (err error) {
 		)
 	}()
 
-	// Let's get stuck until HTTP server context gets canceled. The caller an our go routine can cancel this
+	// Let's get stuck until HTTP server context gets canceled. The caller and our go routine can cancel this
 	// so this should never result in a deadlock.
 	<-httpCtx.Done()
 

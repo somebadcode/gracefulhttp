@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/somebadcode/gracefulhttp/pkg/demoapp"
-	"github.com/somebadcode/gracefulhttp/pkg/gracefulhttp"
-	"go.uber.org/zap/zapcore"
 	"net"
 	"net/http"
 	"os"
@@ -13,6 +10,10 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+
+	"github.com/somebadcode/gracefulhttp/demoapp"
+	"github.com/somebadcode/gracefulhttp/internal/gracefulhttp"
 )
 
 func main() {
@@ -21,7 +22,7 @@ func main() {
 
 func run() int {
 	// Create a base context so that we don't want to allow the context derived from the signal handler to cancel
-	// on going connections currently served by http.Server.
+	// ongoing connections currently served by http.Server.
 	baseCtx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -34,7 +35,7 @@ func run() int {
 	ws := zapcore.Lock(zapcore.AddSync(os.Stderr))
 	core := zapcore.NewCore(encoder, ws, zap.DebugLevel)
 	logger := zap.New(core)
-	// We would normally defer a call to logger.Sync() here but we don't have to do this if we're using stdout or
+	// We would normally defer a call to logger.Sync() here, but we don't have to do this if we're using stdout or
 	// stderr since it's not supported and will therefore cause an error.
 
 	loggerMain := logger.Named("main")
@@ -56,13 +57,12 @@ func run() int {
 		ReadHeaderTimeout: 5 * time.Second,
 		WriteTimeout:      10 * time.Second,
 		IdleTimeout:       30 * time.Second,
-		MaxHeaderBytes:    4096,
 		BaseContext: func(listener net.Listener) context.Context {
 			return baseCtx
 		},
 	}
 
-	// Wrap standard HTTP server in a a piece of code that handles shutdowns and errors more gracefully.
+	// Wrap standard HTTP server in a piece of code that handles shutdowns and errors more gracefully.
 	graceful := gracefulhttp.New(ctx, server, gracefulhttp.WithZapLogger(logger.Named("gracefulhttp")))
 
 	// Create the network listener. The listener will be closed by http.Server. If this wasn't the case, we would have
@@ -80,7 +80,7 @@ func run() int {
 	)
 
 	// Start serving using the graceful wrapper.
-	if err := graceful.GracefulServe(listener); err != nil {
+	if err = graceful.GracefulServe(listener); err != nil {
 		loggerMain.Error("http server returned an error",
 			zap.Error(err),
 		)
